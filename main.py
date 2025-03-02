@@ -1,6 +1,7 @@
 import praw
 import openai
 import time
+import streamlit as st
 
 # --- Step 1: Set Up Reddit API (PRAW) ---
 reddit = praw.Reddit(
@@ -8,10 +9,6 @@ reddit = praw.Reddit(
     client_secret="p8N1aZfgIQWdLv6RLBkLErJqhNwzow",
     user_agent="mjoscraper/1.0 by Zealousideal_Stay388",
 )
-
-# Define subreddit and number of posts
-subreddit_name = "Mounjaro"  # Change this to your target subreddit
-num_posts = 10  # Number of posts to scrape
 
 # --- Step 2: Set Up OpenAI API ---
 openai.api_key = "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"
@@ -26,7 +23,11 @@ def summarize_text(text):
             messages=[
                 {
                     "role": "system",
-                    "content": "Summarize this Reddit experience in one concise sentence.",
+                    "content": "I want you to create 3 patient stories out of this that highlight the pain points and successes of the posters and/or commenters. \
+                                Feel free to quote entire posts or sentences or phrases. For each user story you create add a short takeaway for the marketing and commercial leadership team of Eli Lilly, \
+                                so they use that leanirng to improve the patients' experience with Mounjaro and accelerate its adoption. \
+                                Format this into a very pretty markdown format with just 3 user stories and no extra fluff. The post and comment should be in one paragraph and the takeaway from it in the next paragraph, for each user story. \
+                                Keep it brief for busy executives in mind. Format the quoted posts/comments in quotes. Add the url of the post to the end of the user story.",
                 },
                 {"role": "user", "content": text},
             ],
@@ -36,24 +37,50 @@ def summarize_text(text):
         return f"Error summarizing: {str(e)}"
 
 
-# --- Step 3: Scrape Reddit Posts and Comments ---
-scraped_data = []
+# Streamlit app
+st.title("Mounjaro Social Listening & Key Insights")
 
-subreddit = reddit.subreddit(subreddit_name)
-for post in subreddit.top(limit=num_posts):  # Fetch top posts
-    post_data = {"title": post.title, "selftext": post.selftext, "comments": []}
+# subreddit_name = st.text_input("Enter Subreddit Name", "Mounjaro")
+# num_posts = st.number_input(
+#     "Number of Posts to Scrape", min_value=1, max_value=100, value=10
+# )
 
-    # Scrape comments
-    post.comments.replace_more(limit=0)  # Expand comments
-    for comment in post.comments.list():
-        post_data["comments"].append(comment.body)
+# if st.button("Generate Summary"):
+with st.spinner("Scraping Reddit and summarizing..."):
+    # --- Step 3: Scrape Reddit Posts and Comments ---
+    scraped_data = []
 
-    scraped_data.append(post_data)
-    time.sleep(1)  # Avoid hitting rate limits
+    subreddit = reddit.subreddit("Mounjaro")
+    for post in subreddit.new(limit=10):  # Fetch top posts
+        post_data = {
+            "title": post.title,
+            "selftext": post.selftext,
+            "comments": [],
+            "url": post.url,  # Fetch the link to the post
+        }
 
-# --- Step 4: Summarize Reddit Experiences ---
-print("\n=== Summarized Experiences ===\n")
-for idx, data in enumerate(scraped_data):
-    full_text = f"{data['title']} {data['selftext']} {' '.join(data['comments'])}"
-    summary = summarize_text(full_text)
-    print(f"Post {idx + 1}: {summary}\n")
+        # Scrape comments
+        post.comments.replace_more(limit=0)  # Expand comments
+        for comment in post.comments.list():
+            post_data["comments"].append(comment.body)
+
+        scraped_data.append(post_data)
+        time.sleep(1)  # Avoid hitting rate limits
+        # Format scraped data into a single paragraph
+        formatted_text = ""
+        for data in scraped_data:
+            formatted_text += f"Title: {data['title']}\n"
+            formatted_text += f"URL: {data['url']}\n"
+            formatted_text += f"Selftext: {data['selftext']}\n"
+            formatted_text += "Comments:\n"
+            for comment in data["comments"]:
+                formatted_text += f"- {comment}\n"
+            formatted_text += "\n"
+
+    # Summarize the formatted text
+    summary = summarize_text(formatted_text)
+
+    # Display the summary
+    st.markdown(summary)
+
+# Run the app using the command: `streamlit run main.py`
