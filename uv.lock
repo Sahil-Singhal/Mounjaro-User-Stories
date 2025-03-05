@@ -512,6 +512,7 @@ dependencies = [
     { name = "openai" },
     { name = "praw" },
     { name = "streamlit" },
+    { name = "timedelta" },
 ]
 
 [package.metadata]
@@ -520,6 +521,7 @@ requires-dist = [
     { name = "openai", specifier = ">=1.65.2" },
     { name = "praw", specifier = ">=7.8.1" },
     { name = "streamlit", specifier = ">=1.42.2" },
+    { name = "timedelta", specifier = ">=2020.12.3" },
 ]
 
 [[package]]
@@ -1073,6 +1075,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/cd/94/91fccdb4b81106424
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b6/cb/b86984bed139586d01532a587464b5805f12e397594f19f931c4c2fbfa61/tenacity-9.0.0-py3-none-any.whl", hash = "sha256:93de0c98785b27fcf659856aa9f54bfbd399e29969b0621bc7f762bd441b4539", size = 28169 },
 ]
+
+[[package]]
+name = "timedelta"
+version = "2020.12.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e7/13/de3fa1eb076ff851805b498a60e212e2d8db44d364f49addfc272d25a544/timedelta-2020.12.3.tar.gz", hash = "sha256:41c28b314de9cb6e4c95fcc9f4e3ecee435f2fc821a079cd9243be4783ac4cf4", size = 1556 }
 
 [[package]]
 name = "toml"
