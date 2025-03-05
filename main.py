@@ -12,12 +12,14 @@ reddit = praw.Reddit(
     user_agent=os.environ.get("REDDIT_USER_AGENT"),
 )
 
+prompt = os.environ.get("MJO_PATIENT_STORY_PROMPT")
+
 # --- Step 2: Set Up OpenAI API ---
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 
 @st.cache_data(ttl=timedelta(hours=24))
-def summarize_text(text):
+def summarize_text(text, prompt=prompt):
     """Summarizes text using OpenAI's gpt-4o-mini with the updated API."""
     try:
         client = openai.OpenAI(api_key=openai.api_key)  # Use the new client object
@@ -26,11 +28,7 @@ def summarize_text(text):
             messages=[
                 {
                     "role": "system",
-                    "content": "I want you to create 3 patient stories out of this that highlight the pain points and successes of the posters and/or commenters. \
-                                Feel free to quote entire posts or sentences or phrases. For each user story you create add a short takeaway for the marketing and commercial leadership team of Eli Lilly, \
-                                so they use that leanirng to improve the patients' experience with Mounjaro and accelerate its adoption. \
-                                Format this into a very pretty markdown format with just 3 user stories and no extra fluff. The post and comment should be in one paragraph and the takeaway from it in the next paragraph, for each user story. \
-                                Keep it brief for busy executives in mind. Format the quoted posts/comments in quotes. Add the url of the post to the end of the user story.",
+                    "content": prompt,
                 },
                 {"role": "user", "content": text},
             ],
@@ -88,7 +86,7 @@ def scrape():
 
 
 # Summarize the formatted text
-summary = summarize_text(scrape())
+summary = summarize_text(scrape(), prompt=prompt)
 
 # Display the summary
 st.markdown(summary)
