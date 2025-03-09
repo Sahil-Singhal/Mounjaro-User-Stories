@@ -18,7 +18,7 @@ prompt = os.environ.get("MJO_PATIENT_STORY_PROMPT")
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 
-@st.cache_data(ttl=timedelta(hours=24))
+@st.cache_data(ttl=timedelta(hours=2))
 def summarize_text(text, prompt=prompt):
     """Summarizes text using OpenAI's gpt-4o-mini with the updated API."""
     try:
