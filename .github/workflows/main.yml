@@ -1,0 +1,12 @@
+name: Keep Streamlit App Awake
+
+on:
+  schedule:
+    - cron: "0 * * * *"  # Runs every 30 minutes
+
+jobs:
+  keep-awake:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send request to Streamlit app
+        run: curl -s -o /dev/null https://mounjarosocial.streamlit.app
