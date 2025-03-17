@@ -4,6 +4,8 @@ import time
 import streamlit as st
 import os
 from datetime import timedelta  # For caching
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
 
 # --- Step 1: Set Up Reddit API (PRAW) ---
 reddit = praw.Reddit(
@@ -49,7 +51,7 @@ st.title("Mounjaro Social Listening & Key Insights")
 
 # if st.button("Generate Summary"):
 # Cache the function's output for 24 hours
-@st.cache_data(ttl=timedelta(hours=24))
+@st.cache_data(ttl=timedelta(hours=2))
 def scrape():
     with st.spinner("Scraping Reddit and summarizing..."):
         # --- Step 3: Scrape Reddit Posts and Comments ---
@@ -71,22 +73,34 @@ def scrape():
 
             scraped_data.append(post_data)
             time.sleep(1)  # Avoid hitting rate limits
-            # Format scraped data into a single paragraph
-            formatted_text = ""
-            for data in scraped_data:
-                formatted_text += f"Title: {data['title']}\n"
-                formatted_text += f"URL: {data['url']}\n"
-                formatted_text += f"Selftext: {data['selftext']}\n"
-                formatted_text += "Comments:\n"
-                for comment in data["comments"]:
-                    formatted_text += f"- {comment}\n"
-                formatted_text += "\n"
+
+        # Format scraped data into a single paragraph
+        formatted_text = ""
+        for data in scraped_data:
+            formatted_text += f"Title: {data['title']}\n"
+            formatted_text += f"URL: {data['url']}\n"
+            formatted_text += f"Selftext: {data['selftext']}\n"
+            formatted_text += "Comments:\n"
+            for comment in data["comments"]:
+                formatted_text += f"- {comment}\n"
+            formatted_text += "\n"
 
         return formatted_text
 
 
+scraped_text = scrape()
 # Summarize the formatted text
-summary = summarize_text(scrape(), prompt=prompt)
+summary = summarize_text(scraped_text, prompt=prompt)
+
+# Display the word cloud
+# Create a word cloud from scraped_text
+wordcloud = WordCloud(colormap="Purples_r", background_color="white").generate(
+    scraped_text
+)
+fig, ax = plt.subplots()
+plt.imshow(wordcloud, interpolation="bilinear")
+plt.axis("off")
+st.pyplot(fig)
 
 # Display the summary
 st.markdown(summary)

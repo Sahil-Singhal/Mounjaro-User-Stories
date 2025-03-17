@@ -6,8 +6,10 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "ipykernel>=6.29.5",
+    "matplotlib>=3.10.1",
     "openai>=1.65.2",
     "praw>=7.8.1",
     "streamlit>=1.42.2",
     "timedelta>=2020.12.3",
+    "wordcloud>=1.9.4",
 ]
